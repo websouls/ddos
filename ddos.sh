@@ -13,3 +13,13 @@ for i in {1..20}; do
 		csf -d $IPADR
 	fi
 done
+
+awk '{print $1}' /usr/local/apache/logs/access_log | sort | uniq -c | sort -n | tail -n 200 > /var/log/ddosApacheAL.txt
+grep -Ff /var/log/IPADR -v /var/log/ddosApacheAL.txt  > /var/log/ddosApacheALEx.txt
+for dAal in {1..200}; do
+NOFL=`sed -n "$dAal"p /var/log/ddosApacheALEx.txt |  awk '{print $1}'`
+BIP=`sed -n "$dAal"p /var/log/ddosApacheALEx.txt |  awk '{print $2}'`
+if [[ $NOFL -ge 10000 ]]; then
+	csf -d $BIP
+fi
+done
